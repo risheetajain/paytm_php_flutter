@@ -3,7 +3,7 @@
     <img src="https://kingtechnologies.in/assets/images/Logo.webp" width="80px" alt="Paytm_php_flutter"/>
   </a>
 </p>
-<h1 align="center">🌟 Paytm_php_flutter 🌟</h1>
+<h1 align="center">🌟 Paytm Gateway with Php & Flutter 🌟</h1>
 <p align="center"></p>
 
 <p align="center">
