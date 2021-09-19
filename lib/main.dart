@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Paytm Gateway Flutter & Php Template',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.amber,
       ),
       home: const PaytmIntegration(),
     );
@@ -69,15 +70,15 @@ class _PaytmIntegrationState extends State<PaytmIntegration> {
                 onPressed: () {
                   initiateTransaction().then(
                     (value) {
-                      debugPrint(value);
-                      if (value["success"] == true) {
+                      final jsonData = jsonDecode(value);
+                      if (jsonData["success"]) {
                         AllInOneSdk.startTransaction(
-                                value["mid"],
-                                value["orderId"],
-                                value["amount"],
-                                value["txnToken"],
-                                value["callbackUrl"],
-                                value["isStaging"],
+                                jsonData["mid"],
+                                jsonData["orderId"],
+                                jsonData["amount"],
+                                jsonData["txnToken"],
+                                jsonData["callbackUrl"],
+                                jsonData["isStaging"],
                                 true)
                             .then((paymentResponse) {
                           result = paymentResponse.toString();
@@ -96,7 +97,7 @@ class _PaytmIntegrationState extends State<PaytmIntegration> {
                         });
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Please Try Again ")));
+                            SnackBar(content: Text(jsonData["message"])));
                       }
                     },
                   );
@@ -104,7 +105,11 @@ class _PaytmIntegrationState extends State<PaytmIntegration> {
             const SizedBox(
               height: 12,
             ),
-            if (result.isNotEmpty) Text("Your Response : $result")
+            if (result.isNotEmpty)
+              Text(
+                "Your Response : $result",
+                textAlign: TextAlign.center,
+              )
           ],
         ),
       ),
@@ -113,18 +118,23 @@ class _PaytmIntegrationState extends State<PaytmIntegration> {
 
   Future initiateTransaction() async {
     try {
-      var url = "http://192.168.1.81/paytm_php_flutter/Php/";
+      var url = "http://172.29.16.1/paytm_php_flutter/Php/";
       FormData formData = FormData.fromMap({"amount": _amountController.text});
       var response = await Dio().post(url, data: formData);
-
       return response.data;
     } on TimeoutException {
-      return {"mesage": 'The connection has timed out, Please try again!'};
+      return {
+        "success": false,
+        "mesage": 'The connection has timed out, Please try again!'
+      };
     } on SocketException {
-      return {"message": "Internet Issue! No Internet connection 😑"};
+      return {
+        "success": false,
+        "message": "Internet Issue! No Internet connection 😑"
+      };
     } catch (e) {
       debugPrint("dio error$e");
-      return {"message": "Connection Problem"};
+      return {"success": false, "message": "Connection Problem"};
     }
   }
 }
