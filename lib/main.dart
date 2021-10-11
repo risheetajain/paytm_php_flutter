@@ -133,7 +133,6 @@ class _PaytmIntegrationState extends State<PaytmIntegration> {
         "message": "Internet Issue! No Internet connection 😑"
       };
     } catch (e) {
-      debugPrint("dio error$e");
       return {"success": false, "message": "Connection Problem"};
     }
   }
